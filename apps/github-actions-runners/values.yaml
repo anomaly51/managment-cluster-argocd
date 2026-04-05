@@ -1,0 +1,8 @@
+gha-runner-scale-set:
+  githubConfigUrl: "https://github.com/anomaly51"
+
+  githubConfigSecret: "github-auth-secret"
+  runnerScaleSetName: "argocd-runners"
+
+  minRunners: 0
+  maxRunners: 5
