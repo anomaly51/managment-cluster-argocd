@@ -1,0 +1,7 @@
+argo-cd:
+  redis:
+    enabled: true
+  server:
+    service:
+      type: ClusterIP
+
