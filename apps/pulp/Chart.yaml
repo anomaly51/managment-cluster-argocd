@@ -1,0 +1,7 @@
+apiVersion: v2
+name: pulp
+version: 1.0.0
+dependencies:
+  - name: pulp-operator
+    version: "*" # Pulls the latest available version
+    repository: https://github.com/pulp/pulp-k8s-resources/raw/main/helm-charts/

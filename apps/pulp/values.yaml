@@ -1,0 +1,2 @@
+pulp-operator:
+  replicaCount: 1
