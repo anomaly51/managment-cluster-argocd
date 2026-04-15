@@ -1,0 +1,11 @@
+apiVersion: kilo.squat.ai/v1alpha1
+kind: Peer
+metadata:
+  name: macos-client
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  allowedIPs:
+    - 10.5.0.2/32
+  publicKey: "GfyF6NaRpOMnarvSKoUYM6KXkh9DGyI7EXqs2b0cTQk="
+  persistentKeepalive: 25
