@@ -73,3 +73,13 @@ URL: <https://localhost:8080>
 kubectl get pods -n github-actions-runners
 
 ```
+
+## Setup database
+
+connection string: jdbc:postgresql://10.43.201.186:5432/utility_db?sslmode=required
+username: utility_admin
+
+```bash
+kubectl get secret utility-admin.utility-database.credentials.postgresql.acid.zalan.do -n 
+utility-database -o jsonpath="{.data.password}" | base64 -d; echo
+```

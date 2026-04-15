@@ -5,6 +5,8 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 spec:
+  admin_password_secret: pulp-admin-password
+  ingress_type: nodeport # Создаст балансировщик/nginx (pulp-web-svc)
   api:
     replicas: 1
   content:
@@ -13,9 +15,17 @@ spec:
     replicas: 1
   web:
     replicas: 1
+
+  # Отключаем встроенную БД и подключаем твою utility-database
   database:
-    postgres_storage_class: local-path # <-- FIXED HERE
-  file_storage_access_mode: "ReadWriteOnce"
-  file_storage_size: "5Gi"
-  file_storage_storage_class: local-path # <-- FIXED HERE
+    external_db_secret: pulp-external-db
+
+  # Включаем Redis для кэширования (минимальная конфигурация, поднимется сам)
+  cache:
+    enabled: true
+
+  # Хранилище артефактов (Docker образов) переводим на твой NFS
+  file_storage_access_mode: "ReadWriteMany"
+  file_storage_size: "10Gi"
+  file_storage_storage_class: nfs-client
 
