@@ -10,7 +10,7 @@
 ## 1. Install ArgoCD
 
 ```bash
-helm repo add argo [https://argoproj.github.io/argo-helm](https://argoproj.github.io/argo-helm)
+helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 
 helm install argocd argo/argo-cd \
@@ -27,6 +27,28 @@ kubectl create namespace github-actions-runners
 kubectl create secret generic github-auth-secret \
   --namespace=github-actions-runners \
   --from-literal=github_token="YOUR_GITHUB_PAT_HERE"
+```
+
+## Configure Kilo
+
+```bash
+kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.annotations.kilo\.squat\.ai/key}{"\n"}{end}'
+```
+
+and update this config
+
+```bash
+[Interface]
+PrivateKey = iOCwalS17yxK4HLTGkK3KEtlGWjaw59Q/lAxA6uU7Ug=
+Address = 10.5.0.2/32
+DNS = 10.43.0.10, cluster.local
+MTU = 1280
+
+[Peer]
+PublicKey = CeJSuzpleCOfhbb7RWOdERZJal4OWHaCuFxqsoKp4hM=
+AllowedIPs = 10.42.0.0/16, 10.43.0.0/16, 10.4.0.0/16, 10.5.0.0/24
+Endpoint = 192.168.1.40:51820
+PersistentKeepalive = 25
 ```
 
 ## Bootstrap the Cluster
