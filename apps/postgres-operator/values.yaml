@@ -1,3 +1,10 @@
 postgres-operator:
+  fullnameOverride: "postgres-operator"
   configKubernetes:
-    enable_crd_validation: true
+    enable_cross_namespace_secret: true
+
+postgres-operator-ui:
+  fullnameOverride: "postgres-operator-ui"
+  envs:
+    operatorApiUrl: "http://postgres-operator:8080"
+

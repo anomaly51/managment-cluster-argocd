@@ -1,20 +1,21 @@
-apiVersion: acid.zalan.do/v1
+apiVersion: "acid.zalan.do/v1"
 kind: postgresql
 metadata:
-  name: db
+  name: my-db
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "5"
 spec:
-  teamId: "db"
+  teamId: "admin"
   volume:
-    size: 1Gi
+    size: 5Gi
     storageClass: local-path
   numberOfInstances: 1
   users:
-    postgres:
+    admin:
       - superuser
       - createdb
   databases:
-    postgres: postgres
+    maindb: admin
   postgresql:
-    version: "15"
+    version: "16"
+
