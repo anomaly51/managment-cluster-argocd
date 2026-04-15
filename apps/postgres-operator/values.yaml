@@ -1,0 +1,3 @@
+postgres-operator:
+  configKubernetes:
+    enable_crd_validation: true
