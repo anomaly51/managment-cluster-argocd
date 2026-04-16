@@ -11,15 +11,14 @@ gha-runner-scale-set:
     type: "dind"
   template:
     spec:
+      volumes:
+        - name: dind-daemon-config
+          configMap:
+            name: dind-daemon-config
       containers:
-        - name: runner
-          image: ghcr.io/actions/actions-runner:latest
-          command: ["/home/runner/run.sh"] # <--- ADD THIS
         - name: dind
-          image: docker:dind
-          args:
-            - dockerd
-            - --host=unix:///var/run/docker.sock # <--- UPDATED PATH
-            - --group=$(DOCKER_GROUP_GID)
-            - --insecure-registry=192.168.1.154
+          volumeMounts:
+            - name: dind-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
 
