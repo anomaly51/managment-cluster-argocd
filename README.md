@@ -71,7 +71,7 @@ URL: <https://localhost:8080>
 
 ```bash
 kubectl get pods -n github-actions-runners
-
+kubectl delete pvc -n utility-database --all
 ```
 
 ## Setup database
