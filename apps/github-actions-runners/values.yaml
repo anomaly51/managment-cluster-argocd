@@ -14,11 +14,12 @@ gha-runner-scale-set:
       containers:
         - name: runner
           image: ghcr.io/actions/actions-runner:latest
+          command: ["/home/runner/run.sh"] # <--- ADD THIS
         - name: dind
           image: docker:dind
           args:
             - dockerd
-            - --host=unix:///run/docker/docker.sock
+            - --host=unix:///var/run/docker.sock # <--- UPDATED PATH
             - --group=$(DOCKER_GROUP_GID)
             - --insecure-registry=192.168.1.154
 
