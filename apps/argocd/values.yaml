@@ -4,4 +4,8 @@ argo-cd:
   server:
     service:
       type: ClusterIP
+  configs:
+    secret:
+      argocdServerAdminPassword: "$2y$05$yf5sSKnQ5lj7EwDF5tjZC.A5O16TILje/2Gc9ds28.wJa71Jh.8Cy"
+      argocdServerAdminPasswordMtime: "2026-04-16T17:27:22Z"
 
