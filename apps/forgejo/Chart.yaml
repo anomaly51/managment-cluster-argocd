@@ -3,5 +3,6 @@ name: forgejo
 version: 1.0.0
 dependencies:
   - name: forgejo
-    version: "0.0.4"
-    repository: https://forgejo-contrib.codeberg.page/forgejo-helm/
+    version: "16.2.1"
+    repository: oci://code.forgejo.org/forgejo-helm
+
