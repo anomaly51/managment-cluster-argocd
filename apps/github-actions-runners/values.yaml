@@ -11,10 +11,17 @@ gha-runner-scale-set:
     type: "dind"
   template:
     spec:
+      initContainers:
+        - name: init-dind-externals
+          image: ghcr.io/actions/actions-runner:latest
       containers:
+        - name: runner
+          image: ghcr.io/actions/actions-runner:latest
         - name: dind
+          image: docker:dind
           args:
             - dockerd
             - --host=unix:///run/docker/docker.sock
             - --group=$(DOCKER_GROUP_GID)
             - --insecure-registry=192.168.1.154
+
