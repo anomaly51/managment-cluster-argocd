@@ -76,9 +76,8 @@ kubectl delete pvc -n utility-database --all
 
 ## Setup database
 
-connection string: jdbc:postgresql://10.43.201.186:5432/utility_db?sslmode=required
-username: utility_admin
+connection string: jdbc:postgresql://{internal_ip_address}:5432/utility_db?sslmode=required
+username: utility-admin
 
 ```bash
 kubectl get secret utility-admin.utility-database.credentials.postgresql.acid.zalan.do -n utility-database -o jsonpath="{.data.password}" | base64 -d; echo
-```
