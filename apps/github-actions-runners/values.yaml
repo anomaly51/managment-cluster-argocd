@@ -7,4 +7,14 @@ gha-runner-scale-set:
   controllerServiceAccount:
     namespace: github-actions-agent
     name: github-actions-agent-gha-rs-controller
-
+  containerMode:
+    type: "dind"
+  template:
+    spec:
+      containers:
+        - name: dind
+          args:
+            - dockerd
+            - --host=unix:///run/docker/docker.sock
+            - --group=$(DOCKER_GROUP_GID)
+            - --insecure-registry=192.168.1.154
