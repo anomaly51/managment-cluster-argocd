@@ -9,11 +9,11 @@ spec:
     storageClass: nfs-client
   numberOfInstances: 1
   users:
-    utility_admin:
+    utilityadmin:
       - superuser
       - createdb
   databases:
-    utility_db: utility_admin
+    utility_db: utilityadmin
   postgresql:
     version: "15"
 
