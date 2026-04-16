@@ -1,0 +1,17 @@
+forgejo:
+  global:
+    storageClass: "nfs-client"
+
+  gitea:
+    admin:
+      username: "forgejoadmin"
+      password: "ForgejoPassword123!"
+
+  service:
+    http:
+      type: ClusterIP
+    ssh:
+      type: ClusterIP
+
+  ingress:
+    enabled: false
