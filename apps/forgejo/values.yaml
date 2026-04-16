@@ -9,9 +9,10 @@ forgejo:
 
   service:
     http:
-      type: ClusterIP
+      type: LoadBalancer
     ssh:
-      type: ClusterIP
+      type: LoadBalancer
 
   ingress:
     enabled: false
+
