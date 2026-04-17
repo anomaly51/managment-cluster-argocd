@@ -4,3 +4,8 @@ argo-cd:
   server:
     service:
       type: ClusterIP
+  configs:
+    cm:
+      ui.bannercontent: "Management Cluster"
+      ui.bannerposition: "top"
+

@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/anomaly51/utils-cluster-agent"
+    repoURL: "https://github.com/anomaly51/managment-cluster-agent"
     targetRevision: HEAD
     path: bootstrap
   destination:
@@ -27,7 +27,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: "https://github.com/anomaly51/utils-cluster-agent"
+        repoURL: "https://github.com/anomaly51/managment-cluster-agent"
         revision: HEAD
         directories:
           - path: apps/*
@@ -37,7 +37,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: "https://github.com/anomaly51/utils-cluster-agent"
+        repoURL: "https://github.com/anomaly51/managment-cluster-agent"
         targetRevision: HEAD
         path: "{{path}}"
       destination:
@@ -56,4 +56,3 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
-
