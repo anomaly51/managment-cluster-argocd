@@ -7,5 +7,6 @@ metadata:
 spec:
   allowedIPs:
     - 10.5.0.2/32
-  publicKey: "GfyF6NaRpOMnarvSKoUYM6KXkh9DGyI7EXqs2b0cTQk="
+  publicKey: "h+04XiobYviSRaWvd0O6z9n8Lhcl5FTZqZ+lwgEGVVU="
   persistentKeepalive: 25
+
