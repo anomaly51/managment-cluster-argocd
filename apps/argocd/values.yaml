@@ -8,4 +8,7 @@ argo-cd:
     cm:
       ui.bannercontent: "Management Cluster"
       ui.bannerposition: "top"
+    secret:
+      argocdServerAdminPassword: "$2a$10$Lzj/cDEk6r8KekYGo0bnROCOhNUurQDRQzonHQPqI/X.CoBwjoVYS"
+      argocdServerAdminPasswordMtime: "2026-04-29T23:25:22Z"
 
