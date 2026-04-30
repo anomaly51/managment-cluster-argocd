@@ -104,9 +104,7 @@ spec:
             args:
               - |
                 set -e
-                # Учим git использовать токен для всех запросов к github
                 git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
-
                 cd /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
                 terraform init
                 terraform apply -auto-approve
@@ -126,7 +124,6 @@ spec:
                 cd /workspace/repo
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
-
                 git add envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/
                 git commit -m "feat: provision VM {{ "{{inputs.parameters.vm-name}}" }} and save tfstate"
                 git push origin main
