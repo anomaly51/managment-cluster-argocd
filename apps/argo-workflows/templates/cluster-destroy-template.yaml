@@ -37,7 +37,7 @@ spec:
             args:
               - |
                 set -e
-                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.tf-repo-url}} /workspace/repo
+                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.tf-repo-url}}" }} /workspace/repo
 
           - name: destroy
             dependencies: [clone]
@@ -52,7 +52,7 @@ spec:
               - |
                 set -e
                 git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
-                cd /workspace/repo/envs/shared/{{inputs.parameters.cluster-name}}
+                cd /workspace/repo/envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}
                 terraform init
                 terraform destroy -auto-approve
 
@@ -71,6 +71,7 @@ spec:
                 cd /workspace/repo
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
-                git rm -r envs/shared/{{inputs.parameters.cluster-name}}/
-                git commit -m "feat: terraform destroy K3s cluster {{inputs.parameters.cluster-name}}"
+                git rm -r envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}/
+                git commit -m "feat: terraform destroy K3s cluster {{ "{{inputs.parameters.cluster-name}}" }}"
                 git push origin main
+

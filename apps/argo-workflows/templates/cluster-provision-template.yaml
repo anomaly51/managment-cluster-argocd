@@ -61,7 +61,7 @@ spec:
             args:
               - |
                 set -e
-                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.tf-repo-url}} /workspace/tf-repo
+                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.tf-repo-url}}" }} /workspace/tf-repo
 
           - name: generate-tf
             dependencies: [clone-tf]
@@ -70,9 +70,9 @@ spec:
             args:
               - |
                 set -e
-                mkdir -p /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}
+                mkdir -p /workspace/tf-repo/envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}
 
-                cat << 'EOF' > /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}/main.tf
+                cat << 'EOF' > /workspace/tf-repo/envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}/main.tf
                 terraform {
                   required_providers {
                     proxmox = {
@@ -92,14 +92,14 @@ spec:
 
                 module "k3s_cluster" {
                   source        = "../../../modules/k3s-cluster"
-                  cluster_name  = "{{inputs.parameters.cluster-name}}"
-                  proxmox_nodes = {{inputs.parameters.target-nodes}}
-                  template_name = "{{inputs.parameters.template-name}}"
-                  master_count  = {{inputs.parameters.master-count}}
-                  worker_count  = {{inputs.parameters.worker-count}}
-                  cores         = {{inputs.parameters.cores}}
-                  memory        = {{inputs.parameters.memory}}
-                  disk_size     = {{inputs.parameters.disk-size}}
+                  cluster_name  = "{{ "{{inputs.parameters.cluster-name}}" }}"
+                  proxmox_nodes = {{ "{{inputs.parameters.target-nodes}}" }}
+                  template_name = "{{ "{{inputs.parameters.template-name}}" }}"
+                  master_count  = {{ "{{inputs.parameters.master-count}}" }}
+                  worker_count  = {{ "{{inputs.parameters.worker-count}}" }}
+                  cores         = {{ "{{inputs.parameters.cores}}" }}
+                  memory        = {{ "{{inputs.parameters.memory}}" }}
+                  disk_size     = {{ "{{inputs.parameters.disk-size}}" }}
                 }
                 EOF
 
@@ -116,7 +116,7 @@ spec:
               - |
                 set -e
                 git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
-                cd /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}
+                cd /workspace/tf-repo/envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}
                 terraform init
                 terraform apply -auto-approve
 
@@ -142,14 +142,14 @@ spec:
                 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPlgr6HBDD57IgEAR2D+dMnj8u/2It1uo9OkqgfaVQin proxmox-vm" > ~/.ssh/id_ed25519_proxmox-vm
                 chmod 600 ~/.ssh/id_ed25519_proxmox-vm
 
-                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.ansible-repo-url}} /workspace/ansible-repo
+                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.ansible-repo-url}}" }} /workspace/ansible-repo
                 cd /workspace/ansible-repo
 
                 sleep 45
 
                 ansible-playbook -i inventory/proxmox.yml playbooks/setup-k3s-cluster.yaml \
-                  -e "target_master=~.*{{inputs.parameters.cluster-name}}-master.*" \
-                  -e "target_workers=~.*{{inputs.parameters.cluster-name}}-worker.*"
+                  -e "target_master=~.*{{ "{{inputs.parameters.cluster-name}}" }}-master.*" \
+                  -e "target_workers=~.*{{ "{{inputs.parameters.cluster-name}}" }}-worker.*"
 
           - name: commit-tf
             dependencies: [run-ansible]
@@ -166,7 +166,7 @@ spec:
                 cd /workspace/tf-repo
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
-                git add envs/shared/{{inputs.parameters.cluster-name}}/
-                git commit -m "feat: terraform apply and ansible init K3s cluster {{inputs.parameters.cluster-name}}"
+                git add envs/shared/{{ "{{inputs.parameters.cluster-name}}" }}/
+                git commit -m "feat: terraform apply and ansible init K3s cluster {{ "{{inputs.parameters.cluster-name}}" }}"
                 git push origin main
 
