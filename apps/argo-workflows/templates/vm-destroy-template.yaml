@@ -71,6 +71,7 @@ spec:
                 cd /workspace/repo
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
-                git rm -r envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/
+                git rm -rf envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/
                 git commit -m "feat: terraform destroy VM {{ "{{inputs.parameters.vm-name}}" }} and remove state"
                 git push origin main
+
