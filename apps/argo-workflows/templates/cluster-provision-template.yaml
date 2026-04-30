@@ -1,0 +1,172 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: terraform-apply-k3s-cluster
+  namespace: argo-workflows
+spec:
+  serviceAccountName: gitops-workflow-sa
+  entrypoint: provision-steps
+  arguments:
+    parameters:
+      - name: tf-repo-url
+        value: "github.com/anomaly51/proxmox-vms-terraform.git"
+      - name: ansible-repo-url
+        value: "github.com/anomaly51/ansible-infra.git"
+      - name: cluster-name
+        value: "new-k3s"
+      - name: target-nodes
+        value: '["machine-1", "machine-2"]'
+      - name: template-name
+        value: "debian-k3s"
+      - name: master-count
+        value: "1"
+      - name: worker-count
+        value: "2"
+      - name: cores
+        value: "4"
+      - name: memory
+        value: "4096"
+      - name: disk-size
+        value: "20"
+  templates:
+    - name: provision-steps
+      inputs:
+        parameters:
+          - name: tf-repo-url
+          - name: ansible-repo-url
+          - name: cluster-name
+          - name: target-nodes
+          - name: template-name
+          - name: master-count
+          - name: worker-count
+          - name: cores
+          - name: memory
+          - name: disk-size
+      volumes:
+        - name: workspace
+          emptyDir: {}
+      containerSet:
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+        containers:
+          - name: clone-tf
+            image: alpine/git:v2.43.0
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
+            command: [sh, -c]
+            args:
+              - |
+                set -e
+                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.tf-repo-url}} /workspace/tf-repo
+
+          - name: generate-tf
+            dependencies: [clone-tf]
+            image: alpine:3.18
+            command: [sh, -c]
+            args:
+              - |
+                set -e
+                mkdir -p /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}
+
+                cat << 'EOF' > /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}/main.tf
+                terraform {
+                  required_providers {
+                    proxmox = {
+                      source  = "telmate/proxmox"
+                      version = "3.0.2-rc07"
+                    }
+                  }
+                }
+
+                provider "proxmox" {
+                  pm_api_url          = "https://192.168.1.35:8006/api2/json"
+                  pm_api_token_id     = "terraform@pam!terraform"
+                  pm_api_token_secret = "bdcbd933-8cbf-4c6c-be85-41b0b8f74ba3"
+                  pm_tls_insecure     = true
+                  pm_parallel         = 4
+                }
+
+                module "k3s_cluster" {
+                  source        = "../../../modules/k3s-cluster"
+                  cluster_name  = "{{inputs.parameters.cluster-name}}"
+                  proxmox_nodes = {{inputs.parameters.target-nodes}}
+                  template_name = "{{inputs.parameters.template-name}}"
+                  master_count  = {{inputs.parameters.master-count}}
+                  worker_count  = {{inputs.parameters.worker-count}}
+                  cores         = {{inputs.parameters.cores}}
+                  memory        = {{inputs.parameters.memory}}
+                  disk_size     = {{inputs.parameters.disk-size}}
+                }
+                EOF
+
+          - name: apply-tf
+            dependencies: [generate-tf]
+            image: hashicorp/terraform:1.5.7
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
+            command: [sh, -c]
+            args:
+              - |
+                set -e
+                git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
+                cd /workspace/tf-repo/envs/shared/{{inputs.parameters.cluster-name}}
+                terraform init
+                terraform apply -auto-approve
+
+          - name: run-ansible
+            dependencies: [apply-tf]
+            image: alpine:3.18
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
+              - name: ANSIBLE_HOST_KEY_CHECKING
+                value: "False"
+            command: [sh, -c]
+            args:
+              - |
+                set -e
+                apk add --no-cache git ansible openssh-client py3-pip py3-requests
+                pip3 install proxmoxer --break-system-packages || pip3 install proxmoxer
+                ansible-galaxy collection install community.proxmox
+
+                mkdir -p ~/.ssh
+                echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPlgr6HBDD57IgEAR2D+dMnj8u/2It1uo9OkqgfaVQin proxmox-vm" > ~/.ssh/id_ed25519_proxmox-vm
+                chmod 600 ~/.ssh/id_ed25519_proxmox-vm
+
+                git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.ansible-repo-url}} /workspace/ansible-repo
+                cd /workspace/ansible-repo
+
+                sleep 45
+
+                ansible-playbook -i inventory/proxmox.yml playbooks/setup-k3s-cluster.yaml \
+                  -e "target_master=~.*{{inputs.parameters.cluster-name}}-master.*" \
+                  -e "target_workers=~.*{{inputs.parameters.cluster-name}}-worker.*"
+
+          - name: commit-tf
+            dependencies: [run-ansible]
+            image: alpine/git:v2.43.0
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
+            command: [sh, -c]
+            args:
+              - |
+                set -e
+                cd /workspace/tf-repo
+                git config --global user.name "Argo Workflows"
+                git config --global user.email "argo@devops.local"
+                git add envs/shared/{{inputs.parameters.cluster-name}}/
+                git commit -m "feat: terraform apply and ansible init K3s cluster {{inputs.parameters.cluster-name}}"
+                git push origin main
+

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: provision-proxmox-vm
+  name: terraform-apply-proxmox-vm
   namespace: argo-workflows
 spec:
   serviceAccountName: gitops-workflow-sa
@@ -83,7 +83,7 @@ spec:
                 module "vm" {
                   source          = "../../../modules/vm"
                   name            = "{{ "{{inputs.parameters.vm-name}}" }}"
-                  description     = "Provisioned via Argo Workflows"
+                  description     = "Provisioned via Argo Workflows (Terraform Apply)"
                   template_name   = "{{ "{{inputs.parameters.template-name}}" }}"
                   target_node     = "{{ "{{inputs.parameters.target-node}}" }}"
                   cores           = {{ "{{inputs.parameters.cores}}" }}
@@ -104,7 +104,7 @@ spec:
             args:
               - |
                 set -e
-                tree
+                tree /workspace/repo/envs 
                 git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
                 cd /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
                 terraform init
@@ -126,6 +126,6 @@ spec:
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
                 git add envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/
-                git commit -m "feat: provision VM {{ "{{inputs.parameters.vm-name}}" }} and save tfstate"
+                git commit -m "feat: terraform apply VM {{ "{{inputs.parameters.vm-name}}" }}"
                 git push origin main
 
