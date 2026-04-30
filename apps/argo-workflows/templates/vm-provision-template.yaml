@@ -4,6 +4,7 @@ metadata:
   name: provision-proxmox-vm
   namespace: argo-workflows
 spec:
+  serviceAccountName: gitops-workflow-sa
   entrypoint: provision-steps
   arguments:
     parameters:
@@ -61,6 +62,7 @@ spec:
               - |
                 set -e
                 mkdir -p /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
+
                 cat << 'EOF' > /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/main.tf
                 terraform {
                   required_providers {
@@ -70,12 +72,14 @@ spec:
                     }
                   }
                 }
+
                 provider "proxmox" {
                   pm_api_url          = "https://192.168.1.35:8006/api2/json"
                   pm_api_token_id     = "terraform@pam!terraform"
                   pm_api_token_secret = "bdcbd933-8cbf-4c6c-be85-41b0b8f74ba3"
                   pm_tls_insecure     = true
                 }
+
                 module "vm" {
                   source          = "git::https://github.com/anomaly51/proxmox-vms-terraform.git//modules/vm?ref=main"
                   name            = "{{ "{{inputs.parameters.vm-name}}" }}"
@@ -91,10 +95,18 @@ spec:
           - name: apply
             dependencies: [generate]
             image: hashicorp/terraform:1.5.7
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
             command: [sh, -c]
             args:
               - |
                 set -e
+                # Учим git использовать токен для всех запросов к github
+                git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
+
                 cd /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
                 terraform init
                 terraform apply -auto-approve
@@ -102,6 +114,11 @@ spec:
           - name: commit
             dependencies: [apply]
             image: alpine/git:v2.43.0
+            env:
+              - name: GIT_TOKEN_P1
+                value: "ghp_"
+              - name: GIT_TOKEN_P2
+                value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
             command: [sh, -c]
             args:
               - |
@@ -109,6 +126,7 @@ spec:
                 cd /workspace/repo
                 git config --global user.name "Argo Workflows"
                 git config --global user.email "argo@devops.local"
+
                 git add envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/
                 git commit -m "feat: provision VM {{ "{{inputs.parameters.vm-name}}" }} and save tfstate"
                 git push origin main
