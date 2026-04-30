@@ -104,6 +104,7 @@ spec:
             args:
               - |
                 set -e
+                tree
                 git config --global url."https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@github.com/".insteadOf "https://github.com/"
                 cd /workspace/repo/envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
                 terraform init
