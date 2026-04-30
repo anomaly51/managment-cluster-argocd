@@ -4,6 +4,7 @@ metadata:
   name: provision-proxmox-vm
   namespace: argo-workflows
 spec:
+  serviceAccountName: gitops-workflow-sa
   entrypoint: create-vm-commit
   arguments:
     parameters:
@@ -83,4 +84,3 @@ spec:
             value: "ghp_"
           - name: GIT_TOKEN_P2
             value: "95do3C5ZrLwwvkIhLkyf4UERp8PFhW1yfyoM"
-
