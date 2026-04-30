@@ -41,12 +41,12 @@ spec:
             git config --global user.name "Argo Workflows"
             git config --global user.email "argo@devops.local"
 
-            git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{inputs.parameters.repo-url}} /workspace
+            git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.repo-url}}" }} /workspace
             cd /workspace
 
-            mkdir -p envs/shared/{{inputs.parameters.vm-name}}
+            mkdir -p envs/shared/{{ "{{inputs.parameters.vm-name}}" }}
 
-            cat << 'EOF' > envs/shared/{{inputs.parameters.vm-name}}/main.tf
+            cat << 'EOF' > envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/main.tf
             terraform {
               required_providers {
                 proxmox = {
@@ -65,18 +65,18 @@ spec:
 
             module "vm" {
               source          = "git::https://github.com/anomaly51/proxmox-vms-terraform.git//modules/vm?ref=main"
-              name            = "{{inputs.parameters.vm-name}}"
+              name            = "{{ "{{inputs.parameters.vm-name}}" }}"
               description     = "Provisioned via Argo Workflows"
-              template_name   = "{{inputs.parameters.template-name}}"
-              target_node     = "{{inputs.parameters.target-node}}"
-              cores           = {{inputs.parameters.cores}}
-              memory          = {{inputs.parameters.memory}}
-              scsi0_disk_size = {{inputs.parameters.disk-size}}
+              template_name   = "{{ "{{inputs.parameters.template-name}}" }}"
+              target_node     = "{{ "{{inputs.parameters.target-node}}" }}"
+              cores           = {{ "{{inputs.parameters.cores}}" }}
+              memory          = {{ "{{inputs.parameters.memory}}" }}
+              scsi0_disk_size = {{ "{{inputs.parameters.disk-size}}" }}
             }
             EOF
 
-            git add envs/shared/{{inputs.parameters.vm-name}}/main.tf
-            git commit -m "feat: provision VM {{inputs.parameters.vm-name}}"
+            git add envs/shared/{{ "{{inputs.parameters.vm-name}}" }}/main.tf
+            git commit -m "feat: provision VM {{ "{{inputs.parameters.vm-name}}" }}"
             git push origin main
         env:
           - name: GIT_TOKEN_P1
