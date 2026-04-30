@@ -139,7 +139,18 @@ spec:
                 ansible-galaxy collection install community.proxmox
 
                 mkdir -p ~/.ssh
-                echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPlgr6HBDD57IgEAR2D+dMnj8u/2It1uo9OkqgfaVQin proxmox-vm" > ~/.ssh/id_ed25519_proxmox-vm
+
+                # --- FIX: Properly formatted heredoc for the private key ---
+                cat << 'EOF' > ~/.ssh/id_ed25519_proxmox-vm
+                -----BEGIN OPENSSH PRIVATE KEY-----
+                b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                QyNTUxOQAAACD5YK+hwQw+eyIBAEdg/nTJ4/Lv9iLdbqPTpKoH2lUIpwAAAJAa/POCGvzz
+                ggAAAAtzc2gtZWQyNTUxOQAAACD5YK+hwQw+eyIBAEdg/nTJ4/Lv9iLdbqPTpKoH2lUIpw
+                AAAEDIuAdzJk3z34U/O5FvZ4zh2JdiBcj2elF6RNyI0uFG6flgr6HBDD57IgEAR2D+dMnj
+                8u/2It1uo9OkqgfaVQinAAAACnByb3htb3gtdm0BAgM=
+                -----END OPENSSH PRIVATE KEY-----
+                EOF
+
                 chmod 600 ~/.ssh/id_ed25519_proxmox-vm
 
                 git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.ansible-repo-url}}" }} /workspace/ansible-repo
@@ -150,8 +161,8 @@ spec:
                 sleep 45
 
                 ansible-playbook -i inventory/proxmox.yml playbooks/setup-k3s-cluster.yaml \
-                  -e "target_master={{inputs.parameters.cluster-name|replace('-', '_')}}_master" \
-                  -e "target_workers={{inputs.parameters.cluster-name|replace('-', '_')}}_workers"
+                  -e "target_master=~.*{{ "{{inputs.parameters.cluster-name}}" }}-master.*" \
+                  -e "target_workers=~.*{{ "{{inputs.parameters.cluster-name}}" }}-worker.*"
 
           - name: commit-tf
             dependencies: [run-ansible]
