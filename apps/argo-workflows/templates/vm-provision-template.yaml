@@ -81,7 +81,7 @@ spec:
                 }
 
                 module "vm" {
-                  source          = "git::https://github.com/anomaly51/proxmox-vms-terraform.git//modules/vm?ref=main"
+                  source          = "../../../modules/vm"
                   name            = "{{ "{{inputs.parameters.vm-name}}" }}"
                   description     = "Provisioned via Argo Workflows"
                   template_name   = "{{ "{{inputs.parameters.template-name}}" }}"
