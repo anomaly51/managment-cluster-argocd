@@ -150,8 +150,8 @@ spec:
                 sleep 45
 
                 ansible-playbook -i inventory/proxmox.yml playbooks/setup-k3s-cluster.yaml \
-                  -e "target_master=~.*{{ "{{inputs.parameters.cluster-name}}" }}-master.*" \
-                  -e "target_workers=~.*{{ "{{inputs.parameters.cluster-name}}" }}-worker.*"
+                  -e "target_master={{inputs.parameters.cluster-name|replace('-', '_')}}_master" \
+                  -e "target_workers={{inputs.parameters.cluster-name|replace('-', '_')}}_workers"
 
           - name: commit-tf
             dependencies: [run-ansible]
