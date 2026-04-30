@@ -143,6 +143,8 @@ spec:
                 chmod 600 ~/.ssh/id_ed25519_proxmox-vm
 
                 git clone https://${GIT_TOKEN_P1}${GIT_TOKEN_P2}@{{ "{{inputs.parameters.ansible-repo-url}}" }} /workspace/ansible-repo
+
+                chmod 755 /workspace/ansible-repo
                 cd /workspace/ansible-repo
 
                 sleep 45
